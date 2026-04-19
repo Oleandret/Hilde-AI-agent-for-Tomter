@@ -804,7 +804,7 @@ function getSettings() {
     personaName:    localStorage.getItem('persona_name')        || 'Norsk AI-assistent',
     pipelineMode:   localStorage.getItem('pipeline_mode')       || 'full',
     contextWindow:  localStorage.getItem('context_window')      || '',
-    maxDuration:    parseInt(localStorage.getItem('max_duration')    || '0') || null,
+    maxDuration:    parseInt(localStorage.getItem('max_duration')    || '0') || 60,
     absentTimeout:  parseInt(localStorage.getItem('absent_timeout')  || '0') || null,
     leftTimeout:    parseInt(localStorage.getItem('left_timeout')    || '0') || null,
     callbackUrl:    localStorage.getItem('callback_url')        || '',
@@ -1075,6 +1075,7 @@ function initDefaults() {
   localStorage.setItem('tavus_replica_id', HILDE_REPLICA_ID);
   localStorage.setItem('el_voice_id',      HILDE_VOICE_ID);
   localStorage.setItem('tts_engine',       HILDE_TTS_ENGINE);
+  if(!localStorage.getItem('max_duration')) localStorage.setItem('max_duration','60');
 
   const isNew=!localStorage.getItem('tavus_api_key');
   const needsUpdate=localStorage.getItem('settings_version')!==SETTINGS_VERSION;
@@ -1165,7 +1166,6 @@ async function testMcpServer(i){
 function addMcpServer(){mcpServers.push({name:'',url:'',enabled:true});renderMcpList(mcpServers);}
 function removeMcpServer(i){mcpServers.splice(i,1);renderMcpList(mcpServers);}
 function collectMcpServers(){return mcpServers.filter(s=>s.name||s.url);}
-function getHomeyMcpUrl(){const s=getSettings();const h=s.mcpServers.find(m=>m.enabled!==false&&(m.name.toLowerCase().includes('homey')||m.url.includes('3000/mcp')));return h?.url||null;}
 
 // ================================================================
 // STATUS / TOAST / LOG
@@ -1187,14 +1187,6 @@ function addLog(type,label,data){
 function clearLog(){document.getElementById('log-list').innerHTML='<div style="color:var(--muted);font-size:11px;text-align:center;margin-top:10px">Ingen events ennå</div>';logCount=0;document.getElementById('log-count').textContent=0;}
 function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');}
 
-// ================================================================
-// BUILD TTS LAYER
-// ================================================================
-function buildTtsLayer(s){
-  if(s.ttsEngine==='elevenlabs'){const obj={tts_engine:'elevenlabs',api_key:s.elApiKey,external_voice_id:s.elVoiceId,tts_model_name:s.elModel,tts_emotion_control:s.elEmotion,voice_settings:{stability:s.elStability,similarity_boost:s.elSimilarity,style:s.elStyle,use_speaker_boost:s.elSpeakerBoost}};if(s.elSpeed!==1.0)obj.experimental_controls={speed:s.elSpeed};return obj;}
-  if(s.ttsEngine==='cartesia')return{tts_engine:'cartesia',api_key:s.cartesiaApiKey,external_voice_id:s.cartesiaVoiceId,tts_model_name:s.cartesiaModel};
-  return{tts_engine:'tavus'};
-}
 
 // ================================================================
 // TOOL DEFINITIONS
@@ -1275,17 +1267,6 @@ async function startConversation(){
     const fullContext=[NORSK_LOCK, END_LOCK, userContext].filter(Boolean).join('\n\n');
     const body={persona_id:s.personaId,conversational_context:fullContext};
     if(s.replicaId) body.replica_id=s.replicaId;
-    // OpenClaw: bruk som custom LLM-backend – avataren snakker direkte med OpenClaw
-    if(s.openclawEnabled && s.openclawUrl){
-      // Tavus forventer basis-URL uten /chat/completions – legger det til selv
-      const baseUrl = s.openclawUrl.replace(/\/chat\/completions\/?$/, '').replace(/\/$/, '');
-      body.custom_llm_url = baseUrl;
-      if(s.openclawApiKey) body.custom_llm_api_key = s.openclawApiKey;
-      // Fortell Tavus hvilken modell/agent i OpenClaw som skal brukes
-      if(s.openclawModel) body.custom_llm_model = s.openclawModel;
-      addLog('info','🐾 OpenClaw aktivert som LLM-backend',{url:baseUrl, model:s.openclawModel});
-      dbgLog('tavus','🐾 custom_llm_url='+baseUrl+' model='+s.openclawModel,{});
-    }
     const props={};
     if(s.maxDuration)props.max_call_duration=s.maxDuration;
     if(s.absentTimeout)props.participant_absent_timeout=s.absentTimeout;
@@ -1614,26 +1595,6 @@ async function handleToolCall(event){
     return;
   }
 
-  if(toolName==='homey_tool'){
-    const homeyInput=args.query||args.command||args.action||args.input||[args.device,args.value].filter(Boolean).join(' ')||lastUserUtterance||'ukjent kommando';
-    const activeWh=s.webhooks.filter(w=>w.enabled!==false&&w.url);
-    const homeyWebhook=activeWh.find(w=>w.name==='homey_tool')||activeWh.find(w=>/homey|smarthus|smart.?hus|lights?|lys|hjem/i.test(w.name+' '+(w.description||'')))||activeWh[0];
-    if(homeyWebhook){
-      const headers={'Content-Type':'application/json'}; const auth=homeyWebhook.auth||s.n8nAuth; if(auth)headers['Authorization']=auth;
-      const homeyPayload={question:homeyInput,query:homeyInput,command:homeyInput,args,tool_name:toolName};
-      addLog('n8n_request',`→ homey_tool: ${homeyInput}`,homeyPayload);
-      dbgLog('webhook',`→ homey_tool: ${homeyInput}`,{url:homeyWebhook.url,tool_call_id:toolCallId});
-      try{const res=await fetch(homeyWebhook.url,{method:'POST',headers,body:JSON.stringify(homeyPayload)});if(!res.ok)throw new Error('HTTP '+res.status);const result=await res.json();const text=result.speakable_response||result.output||result.result||result.message||'Ferdig.';addLog('n8n_response','Homey svar',{text});dbgLog('webhook','← homey_tool: '+text.slice(0,80),{tool_call_id:toolCallId});respondToTavus(convId,text,toolCallId);}
-      catch(e){addLog('error','homey_tool feilet: '+e.message,{});dbgLog('webhook','homey_tool FEIL: '+e.message,{error:e.message},true);respondToTavus(convId,args.response_to_user||'Beklager, jeg fikk ikke kontakt med smarthuset.',toolCallId);}
-      return;
-    }
-    const homeyUrl=getHomeyMcpUrl();
-    if(!homeyUrl){respondToTavus(convId,args.response_to_user||'Smarthus-integrasjonen er ikke konfigurert.',toolCallId);return;}
-    addLog('n8n_request',`→ Homey MCP: ${homeyInput}`,args); dbgLog('mcp',`→ Homey MCP: ${homeyInput}`,{url:homeyUrl});
-    try{const r=await callMcpTool(homeyUrl,'Homey_Control_Tool',{input:homeyInput});if(r?.error)throw new Error('MCP feil: '+(r.error.message||JSON.stringify(r.error)));const content=r?.result?.content;let text='';if(Array.isArray(content)){const rawText=content.map(c=>c.text||'').join(' ').trim();try{const parsed=JSON.parse(rawText);text=Array.isArray(parsed)?parsed.map(i=>i.output||i.text||'').join(' '):(parsed?.output||parsed?.text||rawText);}catch{text=rawText;}}if(!text||text.startsWith('['))text=args.response_to_user||'Ferdig.';addLog('n8n_response','Homey MCP svar',{text});respondToTavus(convId,text,toolCallId);}
-    catch(e){addLog('error','Homey MCP feilet: '+e.message,{});respondToTavus(convId,args.response_to_user||'Beklager, jeg fikk ikke kontakt med smarthuset.',toolCallId);}
-    return;
-  }
   const activeWebhooks=s.webhooks.filter(w=>w.enabled!==false);
   let target=activeWebhooks.find(w=>w.name===toolName)||activeWebhooks.find(w=>/homey|smarthus|smart.?hus|lights?|lys|hjem/i.test(w.name))||(activeWebhooks.length?activeWebhooks[0]:null);
   const targetUrl=target?.url||s.n8nUrl;
