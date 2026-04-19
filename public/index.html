@@ -3,14 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Hilde AI</title>
+<title>Hilde – AI-agent for Tomter</title>
 <script src="https://unpkg.com/@daily-co/daily-js"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#0f1117;--surface:#1a1d27;--card:#20243a;--border:#2d3148;
-  --text:#e2e8f0;--muted:#64748b;--accent:#6366f1;
-  --green:#22c55e;--yellow:#eab308;--red:#ef4444;--blue:#3b82f6;--purple:#a855f7;
+  --bg:#1A1D23;--surface:#22272E;--card:#2A2F3A;--border:#3A4050;
+  --text:#F4F5F7;--muted:#8E9AAB;--accent:#2B7A4B;
+  --green:#2B7A4B;--yellow:#D4A017;--red:#C8372D;--blue:#3b82f6;--purple:#a855f7;
 }
 body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-size:14px;height:100vh;display:flex;flex-direction:column;overflow:hidden}
 
@@ -141,7 +141,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:8px
 .toggle input:checked+.toggle-slider::before{transform:translateX(16px)}
 input[type=range]{accent-color:var(--accent);width:100%}
 .badge{display:inline-block;background:var(--card);border:1px solid var(--border);border-radius:5px;padding:1px 7px;font-size:10px;font-family:monospace;color:var(--muted)}
-.badge.accent{background:rgba(99,102,241,.12);border-color:var(--accent);color:var(--accent)}
+.badge.accent{background:rgba(43,122,75,.12);border-color:var(--accent);color:var(--accent)}
 
 /* MCP & WEBHOOK */
 .mcp-list{display:flex;flex-direction:column;gap:7px}
@@ -221,11 +221,11 @@ code{color:var(--accent);font-family:monospace}
 
 <!-- HEADER -->
 <header>
-  <div class="logo">Hilde <span>AI</span> <span style="font-size:11px;color:var(--muted);font-weight:400">for Tomter</span></div>
+  <div class="logo">Hilde <span style="color:var(--yellow)">●</span> <span style="font-weight:300;color:var(--muted)">AI-agent for Tomter</span></div>
   <div class="header-right">
     <div class="status-pill">
       <div class="dot" id="status-dot"></div>
-      <span id="status-label">Ikke startet</span>
+      <span id="status-label">Klar</span>
     </div>
     <button class="btn-start-h" id="btn-header-start" onclick="startConversation()">▶ Start samtale</button>
     <button class="btn-stop-h"  id="btn-header-stop"  onclick="stopConversation()">■ Avslutt</button>
@@ -239,9 +239,10 @@ code{color:var(--accent);font-family:monospace}
   <!-- VIDEO (full screen by default) -->
   <div class="video-section" id="video-section">
     <div class="video-overlay" id="v-idle">
-      <div class="emoji">🎥</div>
-      <div style="font-size:15px;font-weight:600;color:var(--text)">Trykk «Start samtale»</div>
-      <div style="font-size:12px">Hilde AI er klar</div>
+      <div style="font-size:56px;margin-bottom:4px">🌿</div>
+      <div style="font-size:22px;font-weight:700;color:var(--text);letter-spacing:-0.5px">Hilde</div>
+      <div style="font-size:13px;color:var(--yellow);font-weight:500;letter-spacing:1px;text-transform:uppercase">AI-agent for Tomter</div>
+      <div style="font-size:12px;color:var(--muted);margin-top:8px">Trykk «Start samtale» for å begynne</div>
     </div>
     <div class="video-overlay" id="v-starting" style="display:none">
       <div class="spinner"></div>
@@ -671,7 +672,7 @@ code{color:var(--accent);font-family:monospace}
           <div class="section">
             <div class="section-title">🚀 Kom i gang</div>
             <div class="help-block">
-              <p>Hilde AI lar deg snakke med en AI-videoavatar i nettleseren. Avataren ser deg og svarer deg med tale i sanntid.</p>
+              <p>Hilde er en AI-agent for Tomter som lar deg snakke via en videoavatar i nettleseren. Avataren ser deg og svarer deg med tale i sanntid.</p>
               <p><strong>Du trenger:</strong></p>
               <ol class="help-ol">
                 <li>En Tavus API-nøkkel og Persona ID (se under)</li>
@@ -736,7 +737,7 @@ code{color:var(--accent);font-family:monospace}
               <div class="help-code">{"gateway": {"http": {"endpoints": {"chatCompletions": {"enabled": true}}}}}</div>
               <p><strong>Steg 2 – Restart gateway:</strong></p>
               <div class="help-code">openclaw gateway</div>
-              <p><strong>Steg 3 – Fyll inn i Hilde AI</strong> (Integr. → OpenClaw):</p>
+              <p><strong>Steg 3 – Fyll inn i Hilde</strong> (Integr. → OpenClaw):</p>
               <table class="help-table">
                 <tr><td>Gateway URL</td><td><code>https://din-server:18789/v1</code></td></tr>
                 <tr><td>Agent-ID / modell</td><td><code>openclaw/default</code></td></tr>
@@ -908,9 +909,9 @@ function getSettings() {
     perceptionModel: localStorage.getItem('perception_model')   || 'raven-0',
     enableVision:   localStorage.getItem('enable_vision')       !== 'false',
     ambientQueries: localStorage.getItem('ambient_queries')     || '',
-    greeting:       localStorage.getItem('persona_greeting')    || 'Hei! Jeg er din hjemmeassistent. Hva kan jeg hjelpe deg med?',
+    greeting:       localStorage.getItem('persona_greeting')    || 'Hei! Jeg er Hilde, din AI-agent for Tomter. Hva kan jeg hjelpe deg med i dag?',
     systemPrompt:   localStorage.getItem('system_prompt')       || defaultSystemPrompt(),
-    convContext:    localStorage.getItem('conv_context')        || 'VIKTIG: Du skal alltid snakke norsk bokmål i denne samtalen.',
+    convContext:    localStorage.getItem('conv_context')        || 'Du er Hilde, en hjelpsom AI-agent for Tomter kommune og omegn. Svar alltid på norsk bokmål.',
     turnModel:      localStorage.getItem('turn_model')          || 'sparrow-1',
     patience:       localStorage.getItem('patience')            || 'high',
     interruptibility: localStorage.getItem('interruptibility')  || 'low',
@@ -939,7 +940,7 @@ Du skal ALDRI snakke, skrive eller tenke på engelsk. Ikke ett eneste engelsk or
 Selv om du er usikker – norsk bokmål. Selv om verktøysvar er på engelsk – oversett til norsk.
 Selv om brukeren snakker engelsk – svar på norsk bokmål.
 
-Du er en hjelpsom AI-assistent for hjemmet.
+Du er Hilde, en hjelpsom AI-agent for Tomter. Du hjelper innbyggere og næringsliv i Tomter med spørsmål, informasjon og praktiske oppgaver.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 VERKTØY DU HAR:
@@ -1133,7 +1134,7 @@ function initDefaults() {
     localStorage.setItem('el_api_key','sk_5c60ed04f1d10ebd647f4eabb46e9ef1fdc8c75e36b65ec2');
     localStorage.setItem('el_voice_id','pbTfeim1PEXOqwziBfnC');
     localStorage.setItem('tavus_mcp_servers',JSON.stringify([{name:'Homey Smarthus',url:'https://oleandre.app.n8n.cloud/mcp/homey-mcp',enabled:true}]));
-    localStorage.setItem('persona_greeting','Hei! Jeg er din hjemmeassistent. Jeg kan styre smarthuset ditt og svare på spørsmål. Hva kan jeg hjelpe deg med?');
+    localStorage.setItem('persona_greeting','Hei! Jeg er Hilde, din AI-agent for Tomter. Hva kan jeg hjelpe deg med i dag?');
   }
   if(isNew||needsUpdate){
     localStorage.setItem('el_model','eleven_flash_v2_5');
@@ -1190,7 +1191,7 @@ async function testWebhook(i){
   const wh=webhooks[i]; if(!wh?.url){showToast('Ingen URL satt','error');return;}
   const s=getSettings(); const headers={'Content-Type':'application/json'}; const auth=wh.auth||s.n8nAuth; if(auth) headers['Authorization']=auth;
   showToast(`Tester ${wh.name||wh.url}...`,'info');
-  try{const res=await fetch(wh.url,{method:'POST',headers,body:JSON.stringify({question:'Hei, dette er en test fra Hilde AI.'})});if(!res.ok)throw new Error('HTTP '+res.status);const d=await res.json();showToast('✓ Svar: '+(d.speakable_response||JSON.stringify(d)).slice(0,90),'success');}
+  try{const res=await fetch(wh.url,{method:'POST',headers,body:JSON.stringify({question:'Hei, dette er en test fra Hilde AI-agent.'})});if(!res.ok)throw new Error('HTTP '+res.status);const d=await res.json();showToast('✓ Svar: '+(d.speakable_response||JSON.stringify(d)).slice(0,90),'success');}
   catch(e){showToast('Feil: '+e.message,'error');}
 }
 
