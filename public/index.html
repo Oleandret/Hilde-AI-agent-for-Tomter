@@ -804,7 +804,7 @@ function getSettings() {
     personaName:    localStorage.getItem('persona_name')        || 'Norsk AI-assistent',
     pipelineMode:   localStorage.getItem('pipeline_mode')       || 'full',
     contextWindow:  localStorage.getItem('context_window')      || '',
-    maxDuration:    parseInt(localStorage.getItem('max_duration')    || '0') || 60,
+    maxDuration:    parseInt(localStorage.getItem('max_duration')    || '0') || 300,
     absentTimeout:  parseInt(localStorage.getItem('absent_timeout')  || '0') || null,
     leftTimeout:    parseInt(localStorage.getItem('left_timeout')    || '0') || null,
     callbackUrl:    localStorage.getItem('callback_url')        || '',
@@ -1075,7 +1075,8 @@ function initDefaults() {
   localStorage.setItem('tavus_replica_id', HILDE_REPLICA_ID);
   localStorage.setItem('el_voice_id',      HILDE_VOICE_ID);
   localStorage.setItem('tts_engine',       HILDE_TTS_ENGINE);
-  if(!localStorage.getItem('max_duration')) localStorage.setItem('max_duration','60');
+  localStorage.setItem('max_duration','300');
+  localStorage.setItem('inactivity_timeout','60');
 
   const isNew=!localStorage.getItem('tavus_api_key');
   const needsUpdate=localStorage.getItem('settings_version')!==SETTINGS_VERSION;
