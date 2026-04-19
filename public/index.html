@@ -799,8 +799,8 @@ async function saveServerSettings(map) {
 function getSettings() {
   return {
     apiKey:         localStorage.getItem('tavus_api_key')       || '',
-    personaId:      localStorage.getItem('tavus_persona_id')    || '',
-    replicaId:      localStorage.getItem('tavus_replica_id')    || '',
+    personaId:      localStorage.getItem('tavus_persona_id')    || HILDE_PERSONA_ID,
+    replicaId:      localStorage.getItem('tavus_replica_id')    || HILDE_REPLICA_ID,
     personaName:    localStorage.getItem('persona_name')        || 'Norsk AI-assistent',
     pipelineMode:   localStorage.getItem('pipeline_mode')       || 'full',
     contextWindow:  localStorage.getItem('context_window')      || '',
@@ -827,7 +827,7 @@ function getSettings() {
     freqPenalty:    parseFloat(localStorage.getItem('freq_penalty')  || '0'),
     ttsEngine:      localStorage.getItem('tts_engine')          || 'elevenlabs',
     elApiKey:       localStorage.getItem('el_api_key')          || '',
-    elVoiceId:      localStorage.getItem('el_voice_id')         || 'b3jcIbyC3BSnaRu8avEk',
+    elVoiceId:      localStorage.getItem('el_voice_id')         || HILDE_VOICE_ID,
     elModel:        localStorage.getItem('el_model')            || 'eleven_flash_v2_5',
     elStability:    parseFloat(localStorage.getItem('el_stability')  || '0.5'),
     elSimilarity:   parseFloat(localStorage.getItem('el_similarity') || '0.75'),
@@ -1063,16 +1063,22 @@ function renderToolsDisplay() {
 // ================================================================
 // DEFAULTS
 // ================================================================
-const SETTINGS_VERSION = '13';
+const SETTINGS_VERSION = '14';
+// Disse verdiene er låst til Hilde AI og overskrives alltid
+const HILDE_PERSONA_ID  = 'p54273817212';
+const HILDE_REPLICA_ID  = 'r3f8decedbd2';
+const HILDE_VOICE_ID    = 'b3jcIbyC3BSnaRu8avEk';
 function initDefaults() {
+  // Alltid lås Hilde-spesifikke verdier uansett tidligere innstillinger
+  localStorage.setItem('tavus_persona_id', HILDE_PERSONA_ID);
+  localStorage.setItem('tavus_replica_id', HILDE_REPLICA_ID);
+  localStorage.setItem('el_voice_id',      HILDE_VOICE_ID);
+
   const isNew=!localStorage.getItem('tavus_api_key');
   const needsUpdate=localStorage.getItem('settings_version')!==SETTINGS_VERSION;
   if(isNew){
     localStorage.setItem('tavus_api_key','599dd1df76c24a559628cbb351c997b2');
-    localStorage.setItem('tavus_persona_id','p54273817212');
-    localStorage.setItem('tavus_replica_id','r3f8decedbd2');
     localStorage.setItem('el_api_key','sk_5c60ed04f1d10ebd647f4eabb46e9ef1fdc8c75e36b65ec2');
-    localStorage.setItem('el_voice_id','b3jcIbyC3BSnaRu8avEk');
     localStorage.setItem('tavus_mcp_servers',JSON.stringify([]));
     localStorage.setItem('persona_greeting','Hei! Jeg er Hilde, din AI-agent for Tomter. Hva kan jeg hjelpe deg med i dag?');
   }
