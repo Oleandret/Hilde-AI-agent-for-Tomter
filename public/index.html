@@ -827,7 +827,7 @@ function getSettings() {
     freqPenalty:    parseFloat(localStorage.getItem('freq_penalty')  || '0'),
     ttsEngine:      localStorage.getItem('tts_engine')          || 'elevenlabs',
     elApiKey:       localStorage.getItem('el_api_key')          || '',
-    elVoiceId:      localStorage.getItem('el_voice_id')         || '',
+    elVoiceId:      localStorage.getItem('el_voice_id')         || 'b3jcIbyC3BSnaRu8avEk',
     elModel:        localStorage.getItem('el_model')            || 'eleven_flash_v2_5',
     elStability:    parseFloat(localStorage.getItem('el_stability')  || '0.5'),
     elSimilarity:   parseFloat(localStorage.getItem('el_similarity') || '0.75'),
@@ -1072,7 +1072,7 @@ function initDefaults() {
     localStorage.setItem('tavus_persona_id','p54273817212');
     localStorage.setItem('tavus_replica_id','r3f8decedbd2');
     localStorage.setItem('el_api_key','sk_5c60ed04f1d10ebd647f4eabb46e9ef1fdc8c75e36b65ec2');
-    localStorage.setItem('el_voice_id','pbTfeim1PEXOqwziBfnC');
+    localStorage.setItem('el_voice_id','b3jcIbyC3BSnaRu8avEk');
     localStorage.setItem('tavus_mcp_servers',JSON.stringify([]));
     localStorage.setItem('persona_greeting','Hei! Jeg er Hilde, din AI-agent for Tomter. Hva kan jeg hjelpe deg med i dag?');
   }
