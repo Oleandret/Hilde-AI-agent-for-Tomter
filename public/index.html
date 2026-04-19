@@ -307,9 +307,7 @@ code{color:var(--accent);font-family:monospace}
           <div class="ctrl-title">API-tilkoblinger</div>
           <div class="api-row" id="api-tavus"><span class="api-dot"></span><span class="api-name">Tavus</span><span class="api-val" id="apival-tavus">—</span></div>
           <div class="api-row" id="api-elevenlabs"><span class="api-dot"></span><span class="api-name">ElevenLabs</span><span class="api-val" id="apival-el">—</span></div>
-          <div class="api-row" id="api-homey"><span class="api-dot"></span><span class="api-name">Homey MCP</span><span class="api-val" id="apival-homey">—</span></div>
           <div class="api-row" id="api-webhooks"><span class="api-dot"></span><span class="api-name">Webhooks</span><span class="api-val" id="apival-webhooks">—</span></div>
-          <div class="api-row" id="api-openclaw"><span class="api-dot"></span><span class="api-name">OpenClaw</span><span class="api-val" id="apival-openclaw">—</span></div>
           <button onclick="checkAllApis()" style="margin-top:2px;background:none;border:1px dashed var(--border);border-radius:6px;color:var(--muted);padding:5px;cursor:pointer;font-size:11px;width:100%">↻ Sjekk tilkoblinger</button>
         </div>
 
@@ -559,7 +557,7 @@ code{color:var(--accent);font-family:monospace}
               <div class="field"><label>Pause-tid (ms)</label><input type="number" id="s-pause-time" placeholder="700"></div>
             </div>
             <div class="toggle-row"><label>Smart turn detection</label><label class="toggle"><input type="checkbox" id="s-smart-turn" checked><span class="toggle-slider"></span></label></div>
-            <div class="field"><label>Hotwords</label><input type="text" id="s-hotwords" placeholder="Tavus, Homey, smarthus"></div>
+            <div class="field"><label>Hotwords</label><input type="text" id="s-hotwords" placeholder="Hilde, Tomter"></div>
           </div>
           <div class="section">
             <div class="section-title">👁 Persepsjon</div>
@@ -624,46 +622,12 @@ code{color:var(--accent);font-family:monospace}
             <input type="hidden" id="s-n8n-url">
             <input type="hidden" id="s-n8n-as-callback">
           </div>
-          <div class="section">
-            <div class="section-title">🧠 MCP-servere</div>
-            <div class="mcp-list" id="mcp-list"></div>
-            <button class="btn-add" onclick="addMcpServer()">+ Legg til MCP-server</button>
-          </div>
+
           <div class="section">
             <div class="section-title">📡 Tavus Callback</div>
             <div class="field"><label>Callback URL</label><input type="url" id="s-callback-url-2" placeholder="https://..."></div>
           </div>
-          <div class="section">
-            <div class="section-title">🐾 OpenClaw</div>
-            <div style="background:rgba(99,102,241,.07);border:1px solid var(--accent);border-radius:8px;padding:9px 11px;font-size:11px;color:var(--text);line-height:1.7;margin-bottom:8px">
-              Avataren bruker OpenClaw som AI-hjerne.<br>
-              Aktiver <code>chatCompletions</code> i OpenClaw-konfigen din:<br>
-              <code style="font-size:10px">gateway → http → endpoints → chatCompletions → enabled: true</code>
-            </div>
-            <div class="toggle-row" style="margin-bottom:8px">
-              <div>
-                <div style="font-size:13px;font-weight:500">Bruk OpenClaw som LLM</div>
-                <div style="font-size:11px;color:var(--muted);margin-top:2px">Overstyrer Tavus sin innebygde AI med OpenClaw</div>
-              </div>
-              <label class="toggle"><input type="checkbox" id="s-openclaw-enabled"><span class="toggle-slider"></span></label>
-            </div>
-            <div class="field">
-              <label>Gateway basis-URL</label>
-              <input type="url" id="s-openclaw-url" placeholder="https://din-server:18789/v1">
-              <div style="font-size:10px;color:var(--muted);margin-top:4px">Standard: <code>http://din-server:18789/v1</code> — Tavus legger til <code>/chat/completions</code> automatisk.</div>
-            </div>
-            <div class="field">
-              <label>Agent-ID / modell</label>
-              <input type="text" id="s-openclaw-model" placeholder="openclaw/default">
-              <div style="font-size:10px;color:var(--muted);margin-top:4px">Bruk <code>openclaw/default</code> eller en spesifikk agent-ID som <code>openclaw/min-agent</code>.</div>
-            </div>
-            <div class="field">
-              <label>API-nøkkel</label>
-              <input type="password" id="s-openclaw-api-key" placeholder="Bearer-token fra OpenClaw Gateway">
-            </div>
-            <button onclick="testOpenclawConnection()" style="margin-top:4px;background:var(--card);border:1px solid var(--border);border-radius:7px;padding:7px 14px;color:var(--text);font-size:12px;cursor:pointer;width:100%">🔌 Test tilkobling</button>
-            <div id="openclaw-test-result" style="margin-top:6px;font-size:11px;display:none"></div>
-          </div>
+
         </div><!-- /stab-integrasjoner -->
 
         <!-- HJELP -->
@@ -721,31 +685,11 @@ code{color:var(--accent);font-family:monospace}
           <div class="section">
             <div class="section-title">🤖 Webhook-agenter</div>
             <div class="help-block">
-              <p>Webhooks lar avataren kalle eksterne tjenester som n8n, Homey, egne API-er osv. Hvert webhook blir et <strong>verktøy</strong> avataren kan bruke under samtalen.</p>
+              <p>Webhooks lar avataren kalle eksterne tjenester som n8n og egne API-er osv. Hvert webhook blir et <strong>verktøy</strong> avataren kan bruke under samtalen.</p>
               <p><strong>Oppsett:</strong> Integr. → Webhook-agenter → Legg til webhook. Fyll inn navn, URL og beskrivelse.</p>
               <p><strong>Forventet svar fra webhook:</strong></p>
               <div class="help-code">{"speakable_response": "Svaret på norsk som avataren skal si"}</div>
               <p>Verktøyet aktiveres ved å trykke <strong>🔄 Oppdater persona</strong>.</p>
-            </div>
-          </div>
-
-          <div class="section">
-            <div class="section-title">🐾 OpenClaw-integrasjon</div>
-            <div class="help-block">
-              <p>OpenClaw lar deg erstatte Tavus sin innebygde AI med din egen OpenClaw-agent. Avataren blir da bare ansikt og stemme — OpenClaw er hjernen.</p>
-              <p><strong>Steg 1 – Aktiver API i OpenClaw-konfigen</strong> (<code>~/.openclaw/config.json</code>):</p>
-              <div class="help-code">{"gateway": {"http": {"endpoints": {"chatCompletions": {"enabled": true}}}}}</div>
-              <p><strong>Steg 2 – Restart gateway:</strong></p>
-              <div class="help-code">openclaw gateway</div>
-              <p><strong>Steg 3 – Fyll inn i Hilde</strong> (Integr. → OpenClaw):</p>
-              <table class="help-table">
-                <tr><td>Gateway URL</td><td><code>https://din-server:18789/v1</code></td></tr>
-                <tr><td>Agent-ID / modell</td><td><code>openclaw/default</code></td></tr>
-                <tr><td>API-nøkkel</td><td>Bearer-token fra OpenClaw</td></tr>
-              </table>
-              <p><strong>Steg 4</strong> – Trykk <em>🔌 Test tilkobling</em>. Ved grønt resultat er du klar.</p>
-              <p><strong>Steg 5</strong> – Lagre og start en ny samtale. Aktiver <em>«Bruk OpenClaw som LLM»</em>-toggle.</p>
-              <p style="color:var(--muted);font-size:11px">Tips: Gi OpenClaw-agenten din en system-prompt som sier at svar leses høyt — unngå markdown og lister.</p>
             </div>
           </div>
 
@@ -764,7 +708,6 @@ code{color:var(--accent);font-family:monospace}
               <p><strong>Ingen lyd fra avatar:</strong> Sjekk at nettleseren har tillatt mikrofon og lyd. Prøv å oppdatere siden.</p>
               <p><strong>Transkripsjon mangler:</strong> Åpne 📡 Debug-panelet og se etter <code>conversation.utterance.streaming</code>-hendelser. Sjekk at Daily-tilkoblingen viser «🟢 Daily events aktiv».</p>
               <p><strong>Webhook svarer ikke:</strong> Sjekk at webhook-URL er tilgjengelig og returnerer riktig JSON-format. Bruk Debug-panelet for å se nøyaktige feilmeldinger.</p>
-              <p><strong>OpenClaw-test feiler:</strong> Verifiser at <code>chatCompletions.enabled: true</code> er satt og at gatewayen er restartet.</p>
               <p>Debug-panelet (<strong>📡 Debug</strong>-fanen) viser alle hendelser i sanntid og er nyttig for å diagnostisere problemer.</p>
             </div>
           </div>
@@ -944,7 +887,6 @@ Du er Hilde, en hjelpsom AI-agent for Tomter. Du hjelper innbyggere og næringsl
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 VERKTØY DU HAR:
-- homey_tool: Bruk for ALT som handler om smarthuset – lys, temperatur, enheter, scener, alarmer.
 - ask_tool: Bruk for all annen ekstern informasjon eller handlinger.
 
 VERKTØYREGLER:
@@ -1114,8 +1056,6 @@ function toggleSttEngineFields() {
 function renderToolsDisplay() {
   const el=document.getElementById('tools-display'); const s=getSettings(); const tools=[];
   s.webhooks.filter(wh=>wh.enabled!==false&&wh.name).forEach(wh=>tools.push({name:wh.name,desc:wh.description||wh.url||'—',icon:'🤖'}));
-  const homeyEnabled=s.mcpServers.some(m=>m.enabled!==false&&(m.name.toLowerCase().includes('homey')||m.url.includes('3000/mcp')));
-  if(homeyEnabled) tools.push({name:'homey_tool',desc:'Smarthus-kontroll via Homey MCP',icon:'🏠'});
   if(!tools.length){el.innerHTML='<div style="font-size:11px;color:var(--muted)">Ingen verktøy konfigurert ennå.</div>';return;}
   el.innerHTML=tools.map(t=>`<div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:8px 11px;display:flex;align-items:center;gap:9px"><span style="font-size:15px">${t.icon}</span><div><div style="font-size:11px;font-weight:600;color:var(--accent);font-family:monospace">${esc(t.name)}</div><div style="font-size:10px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(t.desc)}</div></div></div>`).join('');
 }
@@ -1129,11 +1069,11 @@ function initDefaults() {
   const needsUpdate=localStorage.getItem('settings_version')!==SETTINGS_VERSION;
   if(isNew){
     localStorage.setItem('tavus_api_key','599dd1df76c24a559628cbb351c997b2');
-    localStorage.setItem('tavus_persona_id','pfe674c80016');
-    localStorage.setItem('tavus_replica_id','rf4e9d9790f0');
+    localStorage.setItem('tavus_persona_id','p54273817212');
+    localStorage.setItem('tavus_replica_id','r3f8decedbd2');
     localStorage.setItem('el_api_key','sk_5c60ed04f1d10ebd647f4eabb46e9ef1fdc8c75e36b65ec2');
     localStorage.setItem('el_voice_id','pbTfeim1PEXOqwziBfnC');
-    localStorage.setItem('tavus_mcp_servers',JSON.stringify([{name:'Homey Smarthus',url:'https://oleandre.app.n8n.cloud/mcp/homey-mcp',enabled:true}]));
+    localStorage.setItem('tavus_mcp_servers',JSON.stringify([]));
     localStorage.setItem('persona_greeting','Hei! Jeg er Hilde, din AI-agent for Tomter. Hva kan jeg hjelpe deg med i dag?');
   }
   if(isNew||needsUpdate){
@@ -1147,7 +1087,6 @@ function initDefaults() {
     localStorage.setItem('system_prompt',defaultSystemPrompt());
     const existingMcp=JSON.parse(localStorage.getItem('tavus_mcp_servers')||'[]');
     const updatedMcp=existingMcp.map(m=>{
-      if(m.url&&(m.url.includes('92.221.70.95')||m.url.includes('3000/mcp'))) return{...m,url:'https://oleandre.app.n8n.cloud/mcp/homey-mcp'};
       return m;
     });
     if(JSON.stringify(updatedMcp)!==JSON.stringify(existingMcp)) localStorage.setItem('tavus_mcp_servers',JSON.stringify(updatedMcp));
@@ -1815,28 +1754,9 @@ async function checkAllApis(){
   setApiStatus('elevenlabs','checking','sjekker...');
   if(!s.elApiKey)setApiStatus('elevenlabs','skip','ingen nøkkel');
   else{try{const r=await fetch('https://api.elevenlabs.io/v1/user',{headers:{'xi-api-key':s.elApiKey}});if(r.ok){const d=await r.json();setApiStatus('elevenlabs','ok',d.subscription?.tier||'tilkoblet');}else setApiStatus('elevenlabs','err','HTTP '+r.status);}catch{setApiStatus('elevenlabs','err','feil');}}
-  setApiStatus('homey','checking','sjekker...');
-  const homeyUrl=getHomeyMcpUrl();
-  if(!homeyUrl)setApiStatus('homey','skip','ikke konfigurert');
-  else{try{const r=await fetch(homeyUrl,{method:'POST',headers:MCP_HEADERS,body:JSON.stringify({jsonrpc:'2.0',id:1,method:'initialize',params:{protocolVersion:'2024-11-05',capabilities:{},clientInfo:{name:'status-check',version:'1'}}}),signal:AbortSignal.timeout(4000)});if(r.ok)setApiStatus('homey','ok','tilkoblet');else setApiStatus('homey','err','HTTP '+r.status);}catch(e){setApiStatus('homey',e.name==='TimeoutError'?'err':'warn',e.name==='TimeoutError'?'timeout':'⚠ CORS?');}}
   setApiStatus('webhooks','checking','sjekker...');
   if(!s.webhooks.length)setApiStatus('webhooks','skip','ingen konfigurert');
   else{setApiStatus('webhooks','ok',s.webhooks.map(w=>w.name).join(', '));}
-  // OpenClaw
-  setApiStatus('openclaw','checking','sjekker...');
-  if(!s.openclawEnabled||!s.openclawUrl)setApiStatus('openclaw','skip',s.openclawUrl?'deaktivert':'ikke konfigurert');
-  else{
-    try{
-      const baseUrl=s.openclawUrl.replace(/\/chat\/completions\/?$/,'').replace(/\/$/,'');
-      const headers={'Content-Type':'application/json'};
-      if(s.openclawApiKey)headers['Authorization']='Bearer '+s.openclawApiKey;
-      const r=await fetch(baseUrl+'/chat/completions',{method:'POST',headers,
-        body:JSON.stringify({model:s.openclawModel||'openclaw/default',messages:[{role:'user',content:'ping'}],max_tokens:1}),
-        signal:AbortSignal.timeout(5000)});
-      if(r.ok||r.status===400)setApiStatus('openclaw','ok','tilkoblet ✓');
-      else setApiStatus('openclaw','err','HTTP '+r.status);
-    }catch(e){setApiStatus('openclaw',e.name==='TimeoutError'?'err':'warn',e.name==='TimeoutError'?'timeout':'⚠ nettfeil');}
-  }
 }
 
 async function testOpenclawConnection(){
