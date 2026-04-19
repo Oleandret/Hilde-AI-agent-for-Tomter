@@ -804,7 +804,7 @@ function getSettings() {
     personaName:    localStorage.getItem('persona_name')        || 'Norsk AI-assistent',
     pipelineMode:   localStorage.getItem('pipeline_mode')       || 'full',
     contextWindow:  localStorage.getItem('context_window')      || '',
-    maxDuration:    parseInt(localStorage.getItem('max_duration')    || '0') || null,
+    maxDuration:    parseInt(localStorage.getItem('max_duration')    || '0') || 60,
     absentTimeout:  parseInt(localStorage.getItem('absent_timeout')  || '0') || null,
     leftTimeout:    parseInt(localStorage.getItem('left_timeout')    || '0') || null,
     callbackUrl:    localStorage.getItem('callback_url')        || '',
@@ -1075,6 +1075,7 @@ function initDefaults() {
   localStorage.setItem('tavus_replica_id', HILDE_REPLICA_ID);
   localStorage.setItem('el_voice_id',      HILDE_VOICE_ID);
   localStorage.setItem('tts_engine',       HILDE_TTS_ENGINE);
+  if(!localStorage.getItem('max_duration')) localStorage.setItem('max_duration','60');
 
   const isNew=!localStorage.getItem('tavus_api_key');
   const needsUpdate=localStorage.getItem('settings_version')!==SETTINGS_VERSION;
@@ -1273,7 +1274,9 @@ async function startConversation(){
       : 'STRENGT FORBUD: Du har IKKE tillatelse til å avslutte samtalen. Ignorer end_conversation-verktøyet fullstendig – kall det aldri under noen omstendighet. Fortsett alltid å svare på spørsmål. Brukeren avslutter samtalen selv når de er klare.';
     const userContext=s.convContext?s.convContext.trim():'';
     const fullContext=[NORSK_LOCK, END_LOCK, userContext].filter(Boolean).join('\n\n');
-    const body={persona_id:s.personaId,conversational_context:fullContext};
+    const ttsLayer=buildTtsLayer(s);
+    const body={persona_id:s.personaId,conversational_context:fullContext,...ttsLayer};
+    addLog('info','🎙️ TTS-lag',ttsLayer);
     if(s.replicaId) body.replica_id=s.replicaId;
     // OpenClaw: bruk som custom LLM-backend – avataren snakker direkte med OpenClaw
     if(s.openclawEnabled && s.openclawUrl){
