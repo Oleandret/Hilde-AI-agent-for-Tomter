@@ -1274,21 +1274,8 @@ async function startConversation(){
       : 'STRENGT FORBUD: Du har IKKE tillatelse til å avslutte samtalen. Ignorer end_conversation-verktøyet fullstendig – kall det aldri under noen omstendighet. Fortsett alltid å svare på spørsmål. Brukeren avslutter samtalen selv når de er klare.';
     const userContext=s.convContext?s.convContext.trim():'';
     const fullContext=[NORSK_LOCK, END_LOCK, userContext].filter(Boolean).join('\n\n');
-    const ttsLayer=buildTtsLayer(s);
-    const body={persona_id:s.personaId,conversational_context:fullContext,...ttsLayer};
-    addLog('info','🎙️ TTS-lag',ttsLayer);
+    const body={persona_id:s.personaId,conversational_context:fullContext};
     if(s.replicaId) body.replica_id=s.replicaId;
-    // OpenClaw: bruk som custom LLM-backend – avataren snakker direkte med OpenClaw
-    if(s.openclawEnabled && s.openclawUrl){
-      // Tavus forventer basis-URL uten /chat/completions – legger det til selv
-      const baseUrl = s.openclawUrl.replace(/\/chat\/completions\/?$/, '').replace(/\/$/, '');
-      body.custom_llm_url = baseUrl;
-      if(s.openclawApiKey) body.custom_llm_api_key = s.openclawApiKey;
-      // Fortell Tavus hvilken modell/agent i OpenClaw som skal brukes
-      if(s.openclawModel) body.custom_llm_model = s.openclawModel;
-      addLog('info','🐾 OpenClaw aktivert som LLM-backend',{url:baseUrl, model:s.openclawModel});
-      dbgLog('tavus','🐾 custom_llm_url='+baseUrl+' model='+s.openclawModel,{});
-    }
     const props={};
     if(s.maxDuration)props.max_call_duration=s.maxDuration;
     if(s.absentTimeout)props.participant_absent_timeout=s.absentTimeout;
@@ -1299,7 +1286,11 @@ async function startConversation(){
     if(s.s3Bucket)props.recording_s3_bucket_name=s.s3Bucket;
     if(s.s3Region)props.recording_s3_bucket_region=s.s3Region;
     const cbUrl=s.n8nAsCallback?s.n8nUrl:s.callbackUrl; if(cbUrl)props.callback_url=cbUrl;
-    if(Object.keys(props).length) body.properties=props;
+    // TTS-konfigurasjon legges under properties
+    const ttsLayer=buildTtsLayer(s);
+    Object.assign(props, ttsLayer);
+    addLog('info','🎙️ TTS-lag (properties)',ttsLayer);
+    body.properties=props;
     const res=await fetch('https://tavusapi.com/v2/conversations',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':s.apiKey},body:JSON.stringify(body)});
     if(!res.ok){const e=await res.text();throw new Error(`Tavus ${res.status}: ${e}`);}
     const data=await res.json();
