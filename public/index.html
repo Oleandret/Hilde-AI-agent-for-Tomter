@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Hilde – AI-agent for Tomter</title>
+<title>Hilde – AI-agent for eiendom i Norge | Bygg-Kon AS</title>
 <script src="https://unpkg.com/@daily-co/daily-js"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -221,7 +221,7 @@ code{color:var(--accent);font-family:monospace}
 
 <!-- HEADER -->
 <header>
-  <div class="logo">Hilde <span style="color:var(--yellow)">●</span> <span style="font-weight:300;color:var(--muted)">AI-agent for Tomter</span></div>
+  <div class="logo">Hilde <span style="color:var(--yellow)">●</span> <span style="font-weight:300;color:var(--muted)">AI-agent for eiendom i Norge</span> <span style="font-size:11px;font-weight:300;color:var(--muted);margin-left:6px">· utviklet av <a href="https://www.byggkon.no" target="_blank" style="color:var(--yellow);text-decoration:none;">Bygg-Kon AS</a></span></div>
   <div class="header-right">
     <div class="status-pill">
       <div class="dot" id="status-dot"></div>
@@ -241,8 +241,9 @@ code{color:var(--accent);font-family:monospace}
     <div class="video-overlay" id="v-idle">
       <div style="font-size:56px;margin-bottom:4px">🌿</div>
       <div style="font-size:22px;font-weight:700;color:var(--text);letter-spacing:-0.5px">Hilde</div>
-      <div style="font-size:13px;color:var(--yellow);font-weight:500;letter-spacing:1px;text-transform:uppercase">AI-agent for Tomter</div>
-      <div style="font-size:12px;color:var(--muted);margin-top:8px">Trykk «Start samtale» for å begynne</div>
+      <div style="font-size:13px;color:var(--yellow);font-weight:500;letter-spacing:1px;text-transform:uppercase">AI-agent for eiendom i Norge</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:4px">utviklet av <a href="https://www.byggkon.no" target="_blank" style="color:var(--yellow);text-decoration:none;">Bygg-Kon AS · www.byggkon.no</a></div>
+      <div style="font-size:12px;color:var(--muted);margin-top:10px">Trykk «Start samtale» for å begynne</div>
     </div>
     <div class="video-overlay" id="v-starting" style="display:none">
       <div class="spinner"></div>
@@ -557,7 +558,7 @@ code{color:var(--accent);font-family:monospace}
               <div class="field"><label>Pause-tid (ms)</label><input type="number" id="s-pause-time" placeholder="700"></div>
             </div>
             <div class="toggle-row"><label>Smart turn detection</label><label class="toggle"><input type="checkbox" id="s-smart-turn" checked><span class="toggle-slider"></span></label></div>
-            <div class="field"><label>Hotwords</label><input type="text" id="s-hotwords" placeholder="Hilde, Tomter"></div>
+            <div class="field"><label>Hotwords</label><input type="text" id="s-hotwords" placeholder="Hilde, Byggkon, eiendom"></div>
           </div>
           <div class="section">
             <div class="section-title">👁 Persepsjon</div>
@@ -636,7 +637,7 @@ code{color:var(--accent);font-family:monospace}
           <div class="section">
             <div class="section-title">🚀 Kom i gang</div>
             <div class="help-block">
-              <p>Hilde er en AI-agent for Tomter som lar deg snakke via en videoavatar i nettleseren. Avataren ser deg og svarer deg med tale i sanntid.</p>
+              <p>Hilde er en AI-agent for eiendom i Norge, utviklet av <strong>Bygg-Kon AS</strong> (<a href="https://www.byggkon.no" target="_blank" class="help-link">www.byggkon.no</a>). Du snakker med Hilde via en videoavatar i nettleseren – hun ser deg og svarer med tale i sanntid.</p>
               <p><strong>Du trenger:</strong></p>
               <ol class="help-ol">
                 <li>En Tavus API-nøkkel og Persona ID (se under)</li>
