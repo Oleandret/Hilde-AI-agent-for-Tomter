@@ -852,9 +852,9 @@ function getSettings() {
     perceptionModel: localStorage.getItem('perception_model')   || 'raven-0',
     enableVision:   localStorage.getItem('enable_vision')       !== 'false',
     ambientQueries: localStorage.getItem('ambient_queries')     || '',
-    greeting:       localStorage.getItem('persona_greeting')    || 'Hei! Jeg er Hilde, din AI-agent for Tomter. Hva kan jeg hjelpe deg med i dag?',
+    greeting:       localStorage.getItem('persona_greeting')    || 'Hei, jeg er Hilde fra Byggkon og kan hjelpe deg med å finne informasjon om eiendom. Hva kan jeg hjelpe deg med?',
     systemPrompt:   localStorage.getItem('system_prompt')       || defaultSystemPrompt(),
-    convContext:    localStorage.getItem('conv_context')        || 'Du er Hilde, en hjelpsom AI-agent for Tomter kommune og omegn. Svar alltid på norsk bokmål.',
+    convContext:    localStorage.getItem('conv_context')        || 'KRITISK INSTRUKS: Du skal utelukkende kommunisere på norsk bokmål. Du er Hilde fra Byggkon – du hjelper folk med informasjon om eiendom. Dersom noen har spørsmål du ikke kan svare på, si alltid: «Send meg gjerne en e-post til hilde@byggkon.ai så kan vi hjelpe deg videre.»',
     turnModel:      localStorage.getItem('turn_model')          || 'sparrow-1',
     patience:       localStorage.getItem('patience')            || 'high',
     interruptibility: localStorage.getItem('interruptibility')  || 'low',
@@ -883,11 +883,11 @@ Du skal ALDRI snakke, skrive eller tenke på engelsk. Ikke ett eneste engelsk or
 Selv om du er usikker – norsk bokmål. Selv om verktøysvar er på engelsk – oversett til norsk.
 Selv om brukeren snakker engelsk – svar på norsk bokmål.
 
-Du er Hilde, en hjelpsom AI-agent for Tomter. Du hjelper innbyggere og næringsliv i Tomter med spørsmål, informasjon og praktiske oppgaver.
+Du er Hilde fra Byggkon. Du hjelper folk med å finne informasjon om eiendom – tomter, boliger, reguleringsplaner, priser og alt relatert til eiendom.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 VERKTØY DU HAR:
-- ask_tool: Bruk for all annen ekstern informasjon eller handlinger.
+- ask_tool: Bruk for all ekstern informasjon om eiendom eller andre handlinger.
 
 VERKTØYREGLER:
 1. Alle argumenter til verktøy MÅ være på norsk bokmål – aldri engelsk.
@@ -896,6 +896,9 @@ VERKTØYREGLER:
 4. Finn aldri opp svar – bruk alltid verktøyet.
 5. Oppsummer verktøyresultater kort og naturlig på norsk bokmål.
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+DERSOM NOEN HAR SPØRSMÅL DU IKKE KAN SVARE PÅ:
+Si alltid: «Send meg gjerne en e-post til hilde@byggkon.ai så kan vi hjelpe deg videre.»
 
 TONE: Vennlig, tydelig og konsis. Snakk som en hjelpsom nordmann.`;
 }
@@ -1077,6 +1080,9 @@ function initDefaults() {
   localStorage.setItem('tts_engine',       HILDE_TTS_ENGINE);
   localStorage.setItem('max_duration','300');
   localStorage.setItem('inactivity_timeout','60');
+  localStorage.setItem('persona_greeting','Hei, jeg er Hilde fra Byggkon og kan hjelpe deg med å finne informasjon om eiendom. Hva kan jeg hjelpe deg med?');
+  localStorage.setItem('conv_context','KRITISK INSTRUKS: Du skal utelukkende kommunisere på norsk bokmål. Du er Hilde fra Byggkon – du hjelper folk med informasjon om eiendom. Dersom noen har spørsmål du ikke kan svare på, si alltid: «Send meg gjerne en e-post til hilde@byggkon.ai så kan vi hjelpe deg videre.»');
+  localStorage.setItem('system_prompt',defaultSystemPrompt());
 
   const isNew=!localStorage.getItem('tavus_api_key');
   const needsUpdate=localStorage.getItem('settings_version')!==SETTINGS_VERSION;
@@ -1084,7 +1090,6 @@ function initDefaults() {
     localStorage.setItem('tavus_api_key','599dd1df76c24a559628cbb351c997b2');
     localStorage.setItem('el_api_key','sk_5c60ed04f1d10ebd647f4eabb46e9ef1fdc8c75e36b65ec2');
     localStorage.setItem('tavus_mcp_servers',JSON.stringify([]));
-    localStorage.setItem('persona_greeting','Hei! Jeg er Hilde, din AI-agent for Tomter. Hva kan jeg hjelpe deg med i dag?');
   }
   if(isNew||needsUpdate){
     localStorage.setItem('el_model','eleven_flash_v2_5');
