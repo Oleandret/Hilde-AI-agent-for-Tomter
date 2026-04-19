@@ -804,7 +804,7 @@ function getSettings() {
     personaName:    localStorage.getItem('persona_name')        || 'Norsk AI-assistent',
     pipelineMode:   localStorage.getItem('pipeline_mode')       || 'full',
     contextWindow:  localStorage.getItem('context_window')      || '',
-    maxDuration:    parseInt(localStorage.getItem('max_duration')    || '0') || 60,
+    maxDuration:    parseInt(localStorage.getItem('max_duration')    || '0') || null,
     absentTimeout:  parseInt(localStorage.getItem('absent_timeout')  || '0') || null,
     leftTimeout:    parseInt(localStorage.getItem('left_timeout')    || '0') || null,
     callbackUrl:    localStorage.getItem('callback_url')        || '',
@@ -1075,7 +1075,6 @@ function initDefaults() {
   localStorage.setItem('tavus_replica_id', HILDE_REPLICA_ID);
   localStorage.setItem('el_voice_id',      HILDE_VOICE_ID);
   localStorage.setItem('tts_engine',       HILDE_TTS_ENGINE);
-  if(!localStorage.getItem('max_duration')) localStorage.setItem('max_duration','60');
 
   const isNew=!localStorage.getItem('tavus_api_key');
   const needsUpdate=localStorage.getItem('settings_version')!==SETTINGS_VERSION;
@@ -1192,14 +1191,9 @@ function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace
 // BUILD TTS LAYER
 // ================================================================
 function buildTtsLayer(s){
-  // Returnerer tts_configuration-objekt for Tavus API (toppnivå i body)
-  if(s.ttsEngine==='elevenlabs' && s.elApiKey && s.elVoiceId){
-    return{tts_engine:'elevenlabs',api_key:s.elApiKey,external_voice_id:s.elVoiceId,tts_model_name:s.elModel||'eleven_flash_v2_5'};
-  }
-  if(s.ttsEngine==='cartesia' && s.cartesiaApiKey && s.cartesiaVoiceId){
-    return{tts_engine:'cartesia',api_key:s.cartesiaApiKey,external_voice_id:s.cartesiaVoiceId,tts_model_name:s.cartesiaModel};
-  }
-  return null;
+  if(s.ttsEngine==='elevenlabs'){const obj={tts_engine:'elevenlabs',api_key:s.elApiKey,external_voice_id:s.elVoiceId,tts_model_name:s.elModel,tts_emotion_control:s.elEmotion,voice_settings:{stability:s.elStability,similarity_boost:s.elSimilarity,style:s.elStyle,use_speaker_boost:s.elSpeakerBoost}};if(s.elSpeed!==1.0)obj.experimental_controls={speed:s.elSpeed};return obj;}
+  if(s.ttsEngine==='cartesia')return{tts_engine:'cartesia',api_key:s.cartesiaApiKey,external_voice_id:s.cartesiaVoiceId,tts_model_name:s.cartesiaModel};
+  return{tts_engine:'tavus'};
 }
 
 // ================================================================
@@ -1281,6 +1275,17 @@ async function startConversation(){
     const fullContext=[NORSK_LOCK, END_LOCK, userContext].filter(Boolean).join('\n\n');
     const body={persona_id:s.personaId,conversational_context:fullContext};
     if(s.replicaId) body.replica_id=s.replicaId;
+    // OpenClaw: bruk som custom LLM-backend – avataren snakker direkte med OpenClaw
+    if(s.openclawEnabled && s.openclawUrl){
+      // Tavus forventer basis-URL uten /chat/completions – legger det til selv
+      const baseUrl = s.openclawUrl.replace(/\/chat\/completions\/?$/, '').replace(/\/$/, '');
+      body.custom_llm_url = baseUrl;
+      if(s.openclawApiKey) body.custom_llm_api_key = s.openclawApiKey;
+      // Fortell Tavus hvilken modell/agent i OpenClaw som skal brukes
+      if(s.openclawModel) body.custom_llm_model = s.openclawModel;
+      addLog('info','🐾 OpenClaw aktivert som LLM-backend',{url:baseUrl, model:s.openclawModel});
+      dbgLog('tavus','🐾 custom_llm_url='+baseUrl+' model='+s.openclawModel,{});
+    }
     const props={};
     if(s.maxDuration)props.max_call_duration=s.maxDuration;
     if(s.absentTimeout)props.participant_absent_timeout=s.absentTimeout;
@@ -1292,16 +1297,6 @@ async function startConversation(){
     if(s.s3Region)props.recording_s3_bucket_region=s.s3Region;
     const cbUrl=s.n8nAsCallback?s.n8nUrl:s.callbackUrl; if(cbUrl)props.callback_url=cbUrl;
     if(Object.keys(props).length) body.properties=props;
-    // TTS-konfigurasjon som eget toppnivå-objekt i Tavus API
-    if(s.ttsEngine==='elevenlabs' && s.elApiKey && s.elVoiceId){
-      body.tts_configuration={
-        tts_engine:'elevenlabs',
-        api_key:s.elApiKey,
-        external_voice_id:s.elVoiceId,
-        tts_model_name:s.elModel||'eleven_flash_v2_5'
-      };
-      addLog('info','🎙️ TTS: ElevenLabs '+s.elVoiceId,body.tts_configuration);
-    }
     const res=await fetch('https://tavusapi.com/v2/conversations',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':s.apiKey},body:JSON.stringify(body)});
     if(!res.ok){const e=await res.text();throw new Error(`Tavus ${res.status}: ${e}`);}
     const data=await res.json();
