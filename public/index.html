@@ -825,7 +825,7 @@ function getSettings() {
     maxTokens:      parseInt(localStorage.getItem('max_tokens')      || '0') || null,
     topP:           parseFloat(localStorage.getItem('top_p')         || '1'),
     freqPenalty:    parseFloat(localStorage.getItem('freq_penalty')  || '0'),
-    ttsEngine:      localStorage.getItem('tts_engine')          || 'elevenlabs',
+    ttsEngine:      localStorage.getItem('tts_engine')          || HILDE_TTS_ENGINE,
     elApiKey:       localStorage.getItem('el_api_key')          || '',
     elVoiceId:      localStorage.getItem('el_voice_id')         || HILDE_VOICE_ID,
     elModel:        localStorage.getItem('el_model')            || 'eleven_flash_v2_5',
@@ -1068,11 +1068,13 @@ const SETTINGS_VERSION = '14';
 const HILDE_PERSONA_ID  = 'p54273817212';
 const HILDE_REPLICA_ID  = 'r3f8decedbd2';
 const HILDE_VOICE_ID    = 'b3jcIbyC3BSnaRu8avEk';
+const HILDE_TTS_ENGINE  = 'elevenlabs';
 function initDefaults() {
   // Alltid lås Hilde-spesifikke verdier uansett tidligere innstillinger
   localStorage.setItem('tavus_persona_id', HILDE_PERSONA_ID);
   localStorage.setItem('tavus_replica_id', HILDE_REPLICA_ID);
   localStorage.setItem('el_voice_id',      HILDE_VOICE_ID);
+  localStorage.setItem('tts_engine',       HILDE_TTS_ENGINE);
 
   const isNew=!localStorage.getItem('tavus_api_key');
   const needsUpdate=localStorage.getItem('settings_version')!==SETTINGS_VERSION;
