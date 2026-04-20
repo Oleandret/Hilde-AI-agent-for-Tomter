@@ -1362,8 +1362,6 @@ async function startConversation(){
     if(s.enableRecording)props.enable_recording=true;
     if(s.enableTranscription)props.enable_transcription=true;
     if(s.applyGreenscreen)props.apply_greenscreen=true;
-    // Lås talegjenkjenning til norsk – hindrer auto-detect fra å mistolke norsk som annet språk
-    props.language='norwegian';
     if(s.s3Bucket)props.recording_s3_bucket_name=s.s3Bucket;
     if(s.s3Region)props.recording_s3_bucket_region=s.s3Region;
     const cbUrl=s.n8nAsCallback?s.n8nUrl:s.callbackUrl; if(cbUrl)props.callback_url=cbUrl;
@@ -1552,10 +1550,12 @@ function clearInactivityTimer(){
 
 function _addDailyParams(url){
   // Hopper over Daily.co sin navneprompt og aktiverer automatisk
+  // startWithVideoOff=1 – brukeren trenger ikke kamera, bare mikrofon (unngår kamera-tillatelsesprompt)
   try{
     const u=new URL(url);
     u.searchParams.set('name','Gjest');
     u.searchParams.set('skipNamingStep','true');
+    u.searchParams.set('startWithVideoOff','1');
     return u.toString();
   }catch{return url;}
 }
