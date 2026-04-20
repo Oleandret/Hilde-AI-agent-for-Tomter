@@ -1675,7 +1675,7 @@ async function handleToolCall(event){
   const payload={message:question,question,query:question};
   addLog('n8n_request',`→ ${target.name}: ${question}`,payload);
   dbgLog('webhook',`→ ${target.name}: ${question.slice(0,80)}`,{tool_name:toolName,url:targetUrl,tool_call_id:toolCallId});
-  const timeout=s.toolTimeout||15000;
+  const timeout=s.toolTimeout||30000;
   try{
     const controller=new AbortController();
     const timer=setTimeout(()=>controller.abort(),timeout);
@@ -1699,9 +1699,11 @@ async function handleToolCall(event){
     dbgLog('webhook',`✅ svar til Tavus: ${replyText.slice(0,120)}`,{tool_call_id:toolCallId});
     respondToTavus(convId,replyText,toolCallId);
   }catch(e){
-    const isCors=e.message?.includes('fetch') || e.name==='TypeError';
-    addLog('error',`${toolName} feilet: ${e.message}`,{});
-    dbgLog('webhook',`❌ FEIL: ${e.message} ${isCors?'(mulig CORS-problem)':''}`,{error:e.message,url:targetUrl},true);
+    const isTimeout=e.name==='AbortError'||e.message?.includes('aborted');
+    const isCors=e.name==='TypeError'&&!isTimeout;
+    const errMsg=isTimeout?`Timeout (>${timeout/1000}s)`:isCors?'CORS-feil – webhook blokkert av nettleser':e.message;
+    addLog('error',`${toolName} feilet: ${errMsg}`,{});
+    dbgLog('webhook',`❌ ${errMsg}`,{url:targetUrl},true);
     respondToTavus(convId,'Beklager, jeg fikk ikke hentet informasjonen akkurat nå.',toolCallId);
   }
 }
