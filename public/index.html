@@ -1154,8 +1154,12 @@ const HILDE_PERSONA_ID  = 'p54273817212';
 const HILDE_REPLICA_ID  = 'r3f8decedbd2';
 const HILDE_VOICE_ID    = 'b3jcIbyC3BSnaRu8avEk';
 const HILDE_TTS_ENGINE  = 'elevenlabs';
+const HILDE_API_KEY     = '599dd1df76c24a559628cbb351c997b2';
+const HILDE_EL_API_KEY  = 'sk_5c60ed04f1d10ebd647f4eabb46e9ef1fdc8c75e36b65ec2';
 function initDefaults() {
   // Alltid lås Hilde-spesifikke verdier uansett tidligere innstillinger
+  localStorage.setItem('tavus_api_key',    HILDE_API_KEY);
+  localStorage.setItem('el_api_key',       HILDE_EL_API_KEY);
   localStorage.setItem('tavus_persona_id', HILDE_PERSONA_ID);
   localStorage.setItem('tavus_replica_id', HILDE_REPLICA_ID);
   localStorage.setItem('el_voice_id',      HILDE_VOICE_ID);
@@ -1175,14 +1179,9 @@ function initDefaults() {
   localStorage.setItem('conv_context','Du er Hilde fra Byggkon. Svar alltid på norsk bokmål. ALLTID bruk ask_tool for å svare på spørsmål om eiendom – aldri svar uten å bruke verktøyet først. Si ALDRI e-postadressen hilde@byggkon.ai med mindre brukeren eksplisitt sier at svaret er feil eller utilstrekkelig.');
   localStorage.setItem('system_prompt',defaultSystemPrompt());
 
-  const isNew=!localStorage.getItem('tavus_api_key');
   const needsUpdate=localStorage.getItem('settings_version')!==SETTINGS_VERSION;
-  if(isNew){
-    localStorage.setItem('tavus_api_key','599dd1df76c24a559628cbb351c997b2');
-    localStorage.setItem('el_api_key','sk_5c60ed04f1d10ebd647f4eabb46e9ef1fdc8c75e36b65ec2');
-    localStorage.setItem('tavus_mcp_servers',JSON.stringify([]));
-  }
-  if(isNew||needsUpdate){
+  if(!localStorage.getItem('tavus_mcp_servers')) localStorage.setItem('tavus_mcp_servers',JSON.stringify([]));
+  if(needsUpdate){
     localStorage.setItem('el_model','eleven_flash_v2_5');
     localStorage.setItem('dg_language','no');
     localStorage.setItem('stt_engine','tavus-advanced');
