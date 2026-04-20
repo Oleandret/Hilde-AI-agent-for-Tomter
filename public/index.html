@@ -971,9 +971,9 @@ ALDRI svar uten å bruke ask_tool først – selv om du tror du vet svaret.
 ALDRI si at du ikke kan svare uten å ha prøvd ask_tool.
 
 VERKTØYREGLER:
-1. Før du kaller ask_tool: si alltid én kort setning, f.eks. «La meg sjekke det for deg» eller «Et øyeblikk, jeg søker i databasen.»
-2. Kall ask_tool med hele spørsmålet på norsk bokmål som "query".
-3. Oppsummer verktøysvaret kort og naturlig på norsk bokmål.
+1. Kall ask_tool med hele spørsmålet på norsk bokmål som "query".
+2. Si INGENTING mens du venter – kall verktøyet stille.
+3. Oppsummer verktøysvaret kort og naturlig på norsk bokmål – du vil alltid motta et svar.
 4. Finn aldri opp informasjon – basér deg kun på verktøysvaret.
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -1731,8 +1731,12 @@ async function handleToolCall(event){
       addLog('n8n_response',`✓ ${toolName} (tekst)`,{rawText});
     }
     if(!replyText) replyText='Jeg fant ingen informasjon om dette.';
-    dbgLog('webhook',`✅ svar til Tavus: ${replyText.slice(0,120)}`,{tool_call_id:toolCallId});
-    respondToTavus(convId,replyText,toolCallId);
+    // Legg til en naturlig intro slik at Hilde ikke starter med rådata
+    const intros=['Jeg fant følgende: ','Her er det jeg fant: ','Ifølge databasen: '];
+    const intro=intros[Math.floor(Math.random()*intros.length)];
+    const fullReply=replyText.startsWith('Jeg')||replyText.startsWith('Her')||replyText.startsWith('Beklager')?replyText:intro+replyText;
+    dbgLog('webhook',`✅ svar til Tavus: ${fullReply.slice(0,120)}`,{tool_call_id:toolCallId});
+    respondToTavus(convId,fullReply,toolCallId);
   }catch(e){
     const isTimeout=e.name==='AbortError'||e.message?.includes('aborted');
     const isCors=e.name==='TypeError'&&!isTimeout;
