@@ -1184,8 +1184,9 @@ function initDefaults() {
   }
   if(isNew||needsUpdate){
     localStorage.setItem('el_model','eleven_flash_v2_5');
-    localStorage.setItem('dg_language','no');
+    localStorage.setItem('dg_language','nb-NO');
     localStorage.setItem('stt_engine','tavus-advanced');
+    localStorage.setItem('conv_language','norwegian');
     localStorage.setItem('patience','high');
     localStorage.setItem('interruptibility','low');
     localStorage.setItem('speculative','false');
@@ -1346,7 +1347,7 @@ async function startConversation(){
   addLog('outgoing','Oppretter Tavus-samtale',{persona_id:s.personaId});
   dbgLog('tavus','POST /v2/conversations',{persona_id:s.personaId});
   try{
-    const NORSK_LOCK='ABSOLUTT KRAV: Kommuniser KUN på norsk bokmål i hele samtalen. Aldri svar på engelsk eller andre språk. Oversett alltid engelske verktøysvar til norsk bokmål.';
+    const NORSK_LOCK='ABSOLUTT KRAV: Kommuniser KUN på norsk bokmål i hele samtalen. Aldri svar på engelsk eller andre språk. Oversett alltid engelske verktøysvar til norsk bokmål. Brukeren snakker alltid norsk – behandle all innkommende tale som norsk uansett hva transkripsjonsmotoren rapporterer.';
     const END_LOCK=s.enableEndTool
       ? 'Du KAN bruke end_conversation-verktøyet, men BARE når brukeren eksplisitt og direkte ber deg avslutte samtalen – for eksempel «avslutt nå», «stopp samtalen» eller «vi er ferdige». ALDRI bruk det etter å ha svart på et spørsmål, selv om svaret virker komplett. ALDRI bruk det kun fordi brukeren sier «ha det» eller «takk» – de kan ha flere spørsmål. Vent alltid til brukeren tydelig bekrefter at de vil avslutte.'
       : 'STRENGT FORBUD: Du har IKKE tillatelse til å avslutte samtalen. Ignorer end_conversation-verktøyet fullstendig – kall det aldri under noen omstendighet. Fortsett alltid å svare på spørsmål. Brukeren avslutter samtalen selv når de er klare.';
@@ -1361,6 +1362,8 @@ async function startConversation(){
     if(s.enableRecording)props.enable_recording=true;
     if(s.enableTranscription)props.enable_transcription=true;
     if(s.applyGreenscreen)props.apply_greenscreen=true;
+    // Lås talegjenkjenning til norsk – hindrer auto-detect fra å mistolke norsk som annet språk
+    props.language='norwegian';
     if(s.s3Bucket)props.recording_s3_bucket_name=s.s3Bucket;
     if(s.s3Region)props.recording_s3_bucket_region=s.s3Region;
     const cbUrl=s.n8nAsCallback?s.n8nUrl:s.callbackUrl; if(cbUrl)props.callback_url=cbUrl;
