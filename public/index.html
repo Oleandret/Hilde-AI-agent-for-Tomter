@@ -1206,7 +1206,7 @@ function renderMcpList(servers){
   mcpServers.forEach((s,i)=>{
     const enabled=s.enabled!==false; const card=document.createElement('div');
     card.className='mcp-card'+(enabled?'':' disabled'); card.id=`mcp-card-${i}`;
-    card.innerHTML=`<div class="mcp-card-row"><input class="mcp-name-input" type="text" placeholder="Navn (Homey)" value="${esc(s.name)}" oninput="mcpServers[${i}].name=this.value"><label class="toggle"><input type="checkbox" ${enabled?'checked':''} onchange="toggleMcp(${i},this.checked)"><span class="toggle-slider"></span></label><button class="btn-remove" onclick="removeMcpServer(${i})">×</button></div><div class="mcp-card-row"><input type="url" placeholder="MCP URL" value="${esc(s.url)}" oninput="mcpServers[${i}].url=this.value"><button class="btn-test-mcp" onclick="testMcpServer(${i})">▶ Test</button></div><div style="font-size:10px;color:var(--muted)">${enabled?'<span style="color:var(--green)">● Aktiv</span>':'<span style="color:var(--muted)">○ Inaktiv</span>'}</div>`;
+    card.innerHTML=`<div class="mcp-card-row"><input class="mcp-name-input" type="text" placeholder="Navn" value="${esc(s.name)}" oninput="mcpServers[${i}].name=this.value"><label class="toggle"><input type="checkbox" ${enabled?'checked':''} onchange="toggleMcp(${i},this.checked)"><span class="toggle-slider"></span></label><button class="btn-remove" onclick="removeMcpServer(${i})">×</button></div><div class="mcp-card-row"><input type="url" placeholder="MCP URL" value="${esc(s.url)}" oninput="mcpServers[${i}].url=this.value"><button class="btn-test-mcp" onclick="testMcpServer(${i})">▶ Test</button></div><div style="font-size:10px;color:var(--muted)">${enabled?'<span style="color:var(--green)">● Aktiv</span>':'<span style="color:var(--muted)">○ Inaktiv</span>'}</div>`;
     el.appendChild(card);
   });
 }
@@ -1245,7 +1245,6 @@ function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace
 // ================================================================
 // TOOL DEFINITIONS
 // ================================================================
-function makeHomeyToolDef(){return{type:'function',function:{name:'homey_tool',description:'Kontroller smarthuset via Homey. Bruk for ALT som handler om lys, temperatur, enheter, scener, alarmer og hjemmeautomasjon. Send hele kommandoen på norsk i "query".',parameters:{type:'object',properties:{query:{type:'string',description:'Hele kommandoen på norsk bokmål'}},required:['query']}}};}
 function makeEndConversationToolDef(){return{type:'function',function:{name:'end_conversation',description:'Avslutt samtalen. Bruk KUN dette verktøyet når brukeren eksplisitt og tydelig ber om å avslutte – for eksempel ved å si ha det, adjø, avslutt samtalen, vi er ferdig eller lignende direkte avskjedsfraser. IKKE bruk dette etter et vanlig spørsmål eller svar, selv om samtalen føles naturlig avsluttet. Vent alltid på en eksplisitt avskjedsbekreftelse fra brukeren.',parameters:{type:'object',properties:{message:{type:'string',description:'Kort naturlig avskjedshilsen på norsk bokmål'}},required:['message']}}};}
 
 // ================================================================
@@ -1258,18 +1257,9 @@ async function pushPersonaToTavus(){
   const btn=document.getElementById('btn-push'); btn.disabled=true; btn.textContent='⏳ Oppdaterer...';
   const effectiveModel=s.llmModel==='custom'?s.llmCustomModel:s.llmModel;
   const toolDefs=[]; const activeWebhooks=s.webhooks.filter(wh=>wh.enabled!==false&&wh.name&&wh.url);
-  const isHomeyWebhook=(wh)=>/homey|smarthus|smart.?hus|lights?|lys|hjem/i.test(wh.name+' '+(wh.description||''));
-  const hasHomeyTool=activeWebhooks.some(w=>w.name==='homey_tool');
   activeWebhooks.forEach(wh=>{
-    const isHomey=isHomeyWebhook(wh)&&wh.name!=='homey_tool';
-    toolDefs.push({type:'function',function:{name:wh.name,description:wh.description||(isHomey?'Kontroller smarthuset via Homey.':'Bruk '+wh.name+' for å hente informasjon eller utføre handlinger.'),parameters:{type:'object',properties:{query:{type:'string',description:'Spørsmålet eller instruksen på norsk bokmål'},action:{type:'string',description:'Handlingen som skal utføres (valgfri)'}},required:['query']}}});
-    if(isHomey&&!hasHomeyTool) toolDefs.push(makeHomeyToolDef());
+    toolDefs.push({type:'function',function:{name:wh.name,description:wh.description||'Bruk '+wh.name+' for å hente informasjon eller utføre handlinger.',parameters:{type:'object',properties:{query:{type:'string',description:'Spørsmålet eller instruksen på norsk bokmål'}},required:['query']}}});
   });
-  const homeyEnabled=s.mcpServers.some(m=>m.enabled!==false&&(m.name.toLowerCase().includes('homey')||m.url.includes('3000/mcp')));
-  const homeyToolAlreadyDefined=toolDefs.some(t=>t.function?.name==='homey_tool');
-  if(homeyEnabled&&!homeyToolAlreadyDefined) toolDefs.push(makeHomeyToolDef());
-  const idx=toolDefs.findIndex(t=>t.function?.name==='homey_tool'); if(idx>=0) toolDefs[idx]=makeHomeyToolDef();
-  // end_conversation – kun hvis aktivert i innstillinger
   if(s.enableEndTool&&!toolDefs.some(t=>t.function?.name==='end_conversation')) toolDefs.push(makeEndConversationToolDef());
   const p=(path,value)=>({op:'add',path,value});
   const patches=[p('/system_prompt',s.systemPrompt),p('/greeting',s.greeting),p('/pipeline_mode',s.pipelineMode),p('/layers/llm/model',effectiveModel),p('/layers/llm/tools',toolDefs)];
@@ -1660,7 +1650,7 @@ async function handleToolCall(event){
   }
 
   const activeWebhooks=s.webhooks.filter(w=>w.enabled!==false);
-  let target=activeWebhooks.find(w=>w.name===toolName)||activeWebhooks.find(w=>/homey|smarthus|smart.?hus|lights?|lys|hjem/i.test(w.name))||(activeWebhooks.length?activeWebhooks[0]:null);
+  let target=activeWebhooks.find(w=>w.name===toolName)||(activeWebhooks.length?activeWebhooks[0]:null);
   const targetUrl=target?.url||s.n8nUrl;
   if(!targetUrl){addLog('error',`Ingen webhook for «${toolName}»`,{});respondToTavus(convId,'Beklager, jeg har ikke tilkobling akkurat nå.',toolCallId);return;}
   if(!target) target={name:toolName,url:targetUrl,description:'',auth:''};
@@ -1675,6 +1665,8 @@ async function handleToolCall(event){
   const payload={message:question,question,query:question};
   addLog('n8n_request',`→ ${target.name}: ${question}`,payload);
   dbgLog('webhook',`→ ${target.name}: ${question.slice(0,80)}`,{tool_name:toolName,url:targetUrl,tool_call_id:toolCallId});
+  // Gi bruker beskjed om at søk pågår
+  respondToTavus(convId,'Et øyeblikk, jeg søker i databasen.',null);
   const timeout=s.toolTimeout||30000;
   try{
     const controller=new AbortController();
