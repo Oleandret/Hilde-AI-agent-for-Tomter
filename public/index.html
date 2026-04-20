@@ -1184,9 +1184,8 @@ function initDefaults() {
   }
   if(isNew||needsUpdate){
     localStorage.setItem('el_model','eleven_flash_v2_5');
-    localStorage.setItem('dg_language','nb-NO');
+    localStorage.setItem('dg_language','no');
     localStorage.setItem('stt_engine','tavus-advanced');
-    localStorage.setItem('conv_language','norwegian');
     localStorage.setItem('patience','high');
     localStorage.setItem('interruptibility','low');
     localStorage.setItem('speculative','false');
@@ -1347,7 +1346,7 @@ async function startConversation(){
   addLog('outgoing','Oppretter Tavus-samtale',{persona_id:s.personaId});
   dbgLog('tavus','POST /v2/conversations',{persona_id:s.personaId});
   try{
-    const NORSK_LOCK='ABSOLUTT KRAV: Kommuniser KUN på norsk bokmål i hele samtalen. Aldri svar på engelsk eller andre språk. Oversett alltid engelske verktøysvar til norsk bokmål. Brukeren snakker alltid norsk – behandle all innkommende tale som norsk uansett hva transkripsjonsmotoren rapporterer.';
+    const NORSK_LOCK='ABSOLUTT KRAV: Kommuniser KUN på norsk bokmål i hele samtalen. Aldri svar på engelsk eller andre språk. Oversett alltid engelske verktøysvar til norsk bokmål.';
     const END_LOCK=s.enableEndTool
       ? 'Du KAN bruke end_conversation-verktøyet, men BARE når brukeren eksplisitt og direkte ber deg avslutte samtalen – for eksempel «avslutt nå», «stopp samtalen» eller «vi er ferdige». ALDRI bruk det etter å ha svart på et spørsmål, selv om svaret virker komplett. ALDRI bruk det kun fordi brukeren sier «ha det» eller «takk» – de kan ha flere spørsmål. Vent alltid til brukeren tydelig bekrefter at de vil avslutte.'
       : 'STRENGT FORBUD: Du har IKKE tillatelse til å avslutte samtalen. Ignorer end_conversation-verktøyet fullstendig – kall det aldri under noen omstendighet. Fortsett alltid å svare på spørsmål. Brukeren avslutter samtalen selv når de er klare.';
@@ -1550,7 +1549,6 @@ function clearInactivityTimer(){
 
 function _addDailyParams(url){
   // Hopper over Daily.co sin navneprompt og aktiverer automatisk
-  // startWithVideoOff=1 – brukeren trenger ikke kamera, bare mikrofon (unngår kamera-tillatelsesprompt)
   try{
     const u=new URL(url);
     u.searchParams.set('name','Gjest');
