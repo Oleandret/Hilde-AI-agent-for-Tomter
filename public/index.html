@@ -202,6 +202,39 @@ code{color:var(--accent);font-family:monospace}
 .toast.show{opacity:1}
 .toast.error{border-color:var(--red);color:var(--red)}
 .toast.success{border-color:var(--green);color:var(--green)}
+
+/* ── MOBIL ── */
+@media(max-width:600px){
+  /* Fix iOS viewport height */
+  body{height:100dvh}
+
+  /* Header: kompakt på mobil */
+  header{padding:6px 10px;gap:6px;flex-wrap:nowrap}
+  .logo{font-size:14px}
+  /* Skjul utvikler-kreditten i headeren på mobil */
+  .logo .logo-credit{display:none}
+  .header-right{gap:5px}
+  .status-pill{padding:4px 9px;font-size:11px}
+  #status-label{display:none}
+  .btn-start-h{padding:7px 12px;font-size:12px}
+  .btn-stop-h{padding:7px 12px;font-size:12px}
+  .btn-drawer-toggle{padding:7px 10px;font-size:12px}
+
+  /* Idle-skjerm: bedre vertikal sentrering på mobil */
+  .video-overlay{padding:20px;gap:10px}
+
+  /* Floating kontroller: større touch-mål, flytt høyere fra bunn */
+  .vco{bottom:32px;padding:10px 16px;gap:8px;border-radius:30px;width:calc(100% - 32px);justify-content:space-between}
+  .vco-btn{padding:8px 12px;font-size:13px}
+  .vco-timer{min-width:52px;font-size:13px}
+
+  /* Drawer full-skjerm på mobil (allerede satt, men sikrer z-index) */
+  .drawer.open{width:100%;z-index:100}
+
+  /* Feltrad 2-kolonner → 1 kolonne på smal skjerm */
+  .field-row,.field-row3{grid-template-columns:1fr}
+  .webhook-url-row{grid-template-columns:1fr auto}
+}
 /* ── Hjelp-panel ── */
 .help-block{font-size:12px;color:var(--text);line-height:1.7;display:flex;flex-direction:column;gap:6px}
 .help-block p{margin:0}
@@ -221,7 +254,7 @@ code{color:var(--accent);font-family:monospace}
 
 <!-- HEADER -->
 <header>
-  <div class="logo">Hilde <span style="color:var(--yellow)">●</span> <span style="font-weight:300;color:var(--muted)">AI-agent for eiendom i Norge</span> <span style="font-size:11px;font-weight:300;color:var(--muted);margin-left:6px">· utviklet av <a href="https://www.byggkon.no" target="_blank" style="color:var(--yellow);text-decoration:none;">Bygg-Kon AS</a></span></div>
+  <div class="logo">Hilde <span style="color:var(--yellow)">●</span> <span style="font-weight:300;color:var(--muted)">AI-agent for eiendom i Norge</span><span class="logo-credit" style="font-size:11px;font-weight:300;color:var(--muted);margin-left:6px">· utviklet av <a href="https://www.byggkon.no" target="_blank" style="color:var(--yellow);text-decoration:none;">Bygg-Kon AS</a></span></div>
   <div class="header-right">
     <div class="status-pill">
       <div class="dot" id="status-dot"></div>
