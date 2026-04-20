@@ -1120,6 +1120,7 @@ function initDefaults() {
   localStorage.setItem('tts_engine',       HILDE_TTS_ENGINE);
   localStorage.setItem('max_duration','300');
   localStorage.setItem('inactivity_timeout','60');
+  localStorage.setItem('tool_timeout','30000');
   // Standard webhook for Hilde – alltid låst
   localStorage.setItem('tavus_webhooks', JSON.stringify([{
     name: 'ask_tool',
