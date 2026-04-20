@@ -1123,6 +1123,14 @@ function initDefaults() {
   localStorage.setItem('tts_engine',       HILDE_TTS_ENGINE);
   localStorage.setItem('max_duration','300');
   localStorage.setItem('inactivity_timeout','60');
+  // Standard webhook for Hilde – alltid låst
+  localStorage.setItem('tavus_webhooks', JSON.stringify([{
+    name: 'ask_tool',
+    url: 'https://webhook-processor-production-c51c.up.railway.app/webhook/fe42a4fe-1cb0-4a4d-9701-4b58b9111f4a',
+    description: 'Søker etter informasjon om eiendom i Norge.',
+    auth: '',
+    enabled: true
+  }]));
   localStorage.setItem('persona_greeting','Hei, jeg er Hilde fra Byggkon og kan hjelpe deg med å finne informasjon om eiendom. Hva kan jeg hjelpe deg med?');
   localStorage.setItem('conv_context','Du er Hilde fra Byggkon. Svar alltid på norsk bokmål. Når noen spør hva du kan hjelpe med, svar KUN: «Jeg kan hjelpe deg med å finne informasjon knyttet til eiendom i Norge, som for eksempel størrelse på tomter, eiere av spesifikke eiendommer og lignende.» Svar alltid kort – aldri lange lister. Dersom du ikke kan svare, si: «Send meg gjerne en e-post til hilde@byggkon.ai så kan vi hjelpe deg videre.»');
   localStorage.setItem('system_prompt',defaultSystemPrompt());
@@ -1509,9 +1517,19 @@ function clearInactivityTimer(){
   inactivityTimer=null;
 }
 
+function _addDailyParams(url){
+  // Hopper over Daily.co sin navneprompt og aktiverer automatisk
+  try{
+    const u=new URL(url);
+    u.searchParams.set('name','Gjest');
+    u.searchParams.set('skipNamingStep','true');
+    return u.toString();
+  }catch{return url;}
+}
 function _mountRawIframe(container,url){
   const iframe=document.createElement('iframe');
-  iframe.src=url; iframe.allow='camera *; microphone *; fullscreen *; display-capture *; speaker *; autoplay *';
+  iframe.src=_addDailyParams(url);
+  iframe.allow='camera *; microphone *; fullscreen *; display-capture *; speaker *; autoplay *';
   iframe.style.cssText='position:absolute;inset:0;width:100%;height:100%;border:none;';
   container.appendChild(iframe);
 }
@@ -1657,7 +1675,7 @@ async function handleToolCall(event){
     respondToTavus(convId,'Beklager, jeg fikk ikke med meg spørsmålet ditt. Kan du gjenta?',toolCallId);
     return;
   }
-  const payload={question,query:question,command:question,args,tool_name:toolName,language:'norwegian'};
+  const payload={message:question,question,query:question};
   addLog('n8n_request',`→ ${target.name}: ${question}`,payload);
   dbgLog('webhook',`→ ${target.name}: ${question.slice(0,80)}`,{tool_name:toolName,url:targetUrl,tool_call_id:toolCallId});
   const timeout=s.toolTimeout||10000;
