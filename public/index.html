@@ -1666,8 +1666,6 @@ async function handleToolCall(event){
   const payload={message:question,question,query:question};
   addLog('n8n_request',`→ ${target.name}: ${question}`,payload);
   dbgLog('webhook',`→ ${target.name}: ${question.slice(0,80)}`,{tool_name:toolName,url:targetUrl,tool_call_id:toolCallId});
-  // Gi bruker beskjed om at søk pågår
-  respondToTavus(convId,'Et øyeblikk, jeg søker i databasen.',null);
   const timeout=s.toolTimeout||30000;
   try{
     const controller=new AbortController();
