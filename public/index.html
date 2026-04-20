@@ -1680,7 +1680,9 @@ async function handleToolCall(event){
     dbgLog('webhook',`📥 råsvar (${rawText.length} tegn): ${rawText.slice(0,300)}`,{});
     let replyText='';
     try{
-      const result=JSON.parse(rawText);
+      const parsed=JSON.parse(rawText);
+      // Webhooket returnerer array [{"output":"..."}] – hent første element
+      const result=Array.isArray(parsed)?parsed[0]:parsed;
       addLog('n8n_response',`✓ ${toolName}`,result);
       replyText=result.speakable_response||result.output||result.result||result.message||result.text||result.answer||result.response||(typeof result==='string'?result:'')||rawText;
     }catch{
