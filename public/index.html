@@ -1675,9 +1675,35 @@ async function handleToolCall(event){
   const payload={message:question,question,query:question};
   addLog('n8n_request',`→ ${target.name}: ${question}`,payload);
   dbgLog('webhook',`→ ${target.name}: ${question.slice(0,80)}`,{tool_name:toolName,url:targetUrl,tool_call_id:toolCallId});
-  const timeout=s.toolTimeout||10000;
-  try{const controller=new AbortController();const timer=setTimeout(()=>controller.abort(),timeout);const res=await fetch(targetUrl,{method:'POST',headers,body:JSON.stringify(payload),signal:controller.signal});clearTimeout(timer);if(!res.ok)throw new Error(`Webhook svarte ${res.status}`);const result=await res.json();const replyText=result.speakable_response||result.output||result.result||result.message||'Ferdig.';addLog('n8n_response',`✓ ${toolName} svar`,result);dbgLog('webhook',`← ${target.name}: ${replyText.slice(0,80)}`,{tool_call_id:toolCallId});respondToTavus(convId,replyText,toolCallId);}
-  catch(e){addLog('error',`${toolName} feilet: `+e.message,{});dbgLog('webhook',`${target.name} FEIL: ${e.message}`,{error:e.message},true);respondToTavus(convId,'Beklager, jeg kunne ikke hente den informasjonen akkurat nå.',toolCallId);}
+  const timeout=s.toolTimeout||15000;
+  try{
+    const controller=new AbortController();
+    const timer=setTimeout(()=>controller.abort(),timeout);
+    dbgLog('webhook',`📤 POST ${targetUrl}`,{payload});
+    const res=await fetch(targetUrl,{method:'POST',headers,body:JSON.stringify(payload),signal:controller.signal});
+    clearTimeout(timer);
+    if(!res.ok) throw new Error(`Webhook HTTP ${res.status}`);
+    const rawText=await res.text();
+    dbgLog('webhook',`📥 råsvar (${rawText.length} tegn): ${rawText.slice(0,300)}`,{});
+    let replyText='';
+    try{
+      const result=JSON.parse(rawText);
+      addLog('n8n_response',`✓ ${toolName}`,result);
+      replyText=result.speakable_response||result.output||result.result||result.message||result.text||result.answer||result.response||(typeof result==='string'?result:'')||rawText;
+    }catch{
+      // Svaret er ren tekst – bruk det direkte
+      replyText=rawText.trim();
+      addLog('n8n_response',`✓ ${toolName} (tekst)`,{rawText});
+    }
+    if(!replyText) replyText='Jeg fant ingen informasjon om dette.';
+    dbgLog('webhook',`✅ svar til Tavus: ${replyText.slice(0,120)}`,{tool_call_id:toolCallId});
+    respondToTavus(convId,replyText,toolCallId);
+  }catch(e){
+    const isCors=e.message?.includes('fetch') || e.name==='TypeError';
+    addLog('error',`${toolName} feilet: ${e.message}`,{});
+    dbgLog('webhook',`❌ FEIL: ${e.message} ${isCors?'(mulig CORS-problem)':''}`,{error:e.message,url:targetUrl},true);
+    respondToTavus(convId,'Beklager, jeg fikk ikke hentet informasjonen akkurat nå.',toolCallId);
+  }
 }
 
 function respondToTavus(convId,text,toolCallId){
