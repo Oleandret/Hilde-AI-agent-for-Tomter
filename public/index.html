@@ -12,7 +12,7 @@
   --text:#F4F5F7;--muted:#8E9AAB;--accent:#2B7A4B;
   --green:#2B7A4B;--yellow:#D4A017;--red:#C8372D;--blue:#3b82f6;--purple:#a855f7;
 }
-body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-size:14px;min-height:100vh;display:flex;flex-direction:column;overflow-y:auto;overflow-x:hidden}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-size:14px;height:100vh;display:flex;flex-direction:column;overflow:hidden}
 
 /* HEADER */
 header{display:flex;align-items:center;justify-content:space-between;padding:8px 16px;background:var(--surface);border-bottom:1px solid var(--border);flex-shrink:0;gap:10px;z-index:10}
@@ -34,10 +34,13 @@ header{display:flex;align-items:center;justify-content:space-between;padding:8px
 .btn-drawer-toggle:hover,.btn-drawer-toggle.active{background:var(--accent);border-color:var(--accent);color:#fff}
 
 /* MAIN LAYOUT */
-.main-view{flex:1;display:flex;flex-direction:column;overflow:visible;position:relative}
+.main-view{flex:1;display:flex;overflow:hidden;position:relative}
+
+/* Scrollable column: video + transcript */
+#scroll-col{flex:1;display:flex;flex-direction:column;overflow-y:auto;overflow-x:hidden}
 
 /* VIDEO SECTION */
-.video-section{width:100%;height:calc(100vh - 57px);min-height:300px;position:relative;background:var(--bg);transition:all .3s ease;overflow:hidden;flex-shrink:0}
+.video-section{width:100%;height:calc(100vh - 57px);min-height:300px;flex-shrink:0;position:relative;background:var(--bg);transition:all .3s ease;overflow:hidden}
 
 /* LIVE TRANSCRIPT BELOW VIDEO */
 #live-transcript{width:100%;background:var(--surface);border-top:1px solid var(--border);padding:20px 16px 32px}
@@ -253,7 +256,7 @@ code{color:var(--accent);font-family:monospace}
   .webhook-url-row{grid-template-columns:1fr auto}
 
   /* Video tar 60dvh på mobil slik at transcript er synlig under */
-  body{height:auto;min-height:100dvh}
+  body{height:100dvh}
   .video-section{height:60dvh;min-height:260px}
   #live-transcript{padding:16px 12px 40px}
   .lt-bubble{font-size:13px}
@@ -292,7 +295,10 @@ code{color:var(--accent);font-family:monospace}
 <!-- MAIN -->
 <div class="main-view">
 
-  <!-- VIDEO (full screen by default) -->
+  <!-- SCROLLABLE CONTENT COLUMN: video + transcript -->
+  <div id="scroll-col">
+
+  <!-- VIDEO -->
   <div class="video-section" id="video-section">
     <div class="video-overlay" id="v-idle">
       <div style="font-size:56px;margin-bottom:4px">🌿</div>
@@ -330,6 +336,8 @@ code{color:var(--accent);font-family:monospace}
       <div class="lt-empty" id="lt-empty">Samtalen vises her</div>
     </div>
   </div>
+
+  </div><!-- /scroll-col -->
 
   <!-- SETTINGS / DEBUG DRAWER -->
   <div class="drawer" id="main-drawer">
@@ -1783,8 +1791,9 @@ function addTranscriptLine(role,text){
     msg.innerHTML=`<div class="lt-meta">${isUser?'Du':'Hilde'} · ${time}</div><div class="lt-bubble">${esc(text)}</div>`;
     msgs.appendChild(msg);
     // Auto-scroll bort bare dersom brukeren allerede er nær bunnen
-    const distFromBottom=document.documentElement.scrollHeight-window.scrollY-window.innerHeight;
-    if(distFromBottom<120) window.scrollTo({top:document.documentElement.scrollHeight,behavior:'smooth'});
+    const sc=document.getElementById('scroll-col');
+    if(sc){const distFromBottom=sc.scrollHeight-sc.scrollTop-sc.clientHeight;
+    if(distFromBottom<140) sc.scrollTo({top:sc.scrollHeight,behavior:'smooth'});}
   }
 }
 function clearTranscript(){const list=document.getElementById('transcript-list');if(list)list.innerHTML='<div id="transcript-empty" style="color:var(--muted);font-size:11px;text-align:center;margin-top:10px">Start en samtale...</div>';}
